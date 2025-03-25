@@ -1,7 +1,7 @@
 import Combine
 import SwiftUI
 
-struct ContentView: View {
+struct MovieListView: View {
     private let apiClient: ApiClient
     @State private var movies = [Movie]()
     @State private var search = String()
@@ -50,6 +50,6 @@ struct ContentView: View {
 
 #Preview {
     NavigationStack {
-        ContentView()
+        MovieListView()
     }
 }
