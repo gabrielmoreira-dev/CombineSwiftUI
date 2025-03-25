@@ -2,18 +2,15 @@ import Combine
 import SwiftUI
 
 struct MovieListView: View {
-    private let apiClient: ApiClient
-    @State private var movies = [Movie]()
+    @State private var viewModel: MovieListViewModel
     @State private var search = String()
-    @State private var cancellables = Set<AnyCancellable>()
-    private var searchSubject = CurrentValueSubject<String, Never>(String())
 
-    init(apiClient: ApiClient = ApiClient()) {
-        self.apiClient = apiClient
+    init(viewModel: MovieListViewModel = MovieListViewModel()) {
+        self.viewModel = viewModel
     }
 
     var body: some View {
-        List(movies) { movie in
+        List(viewModel.movies) { movie in
             HStack {
                 AsyncImage(url: movie.poster) {
                     $0.resizable()
@@ -27,24 +24,11 @@ struct MovieListView: View {
         }
         .searchable(text: $search)
         .onAppear {
-            setupSearch()
+            viewModel.setupSearch()
         }
         .onChange(of: search) {
-            searchSubject.send(search)
+            viewModel.searchMovies(search)
         }
-    }
-
-    private func setupSearch() {
-        searchSubject
-            .debounce(for: .seconds(0.5), scheduler: DispatchQueue.main)
-            .sink { loadMovies(search: $0) }
-            .store(in: &cancellables)
-    }
-
-    private func loadMovies(search: String) {
-        apiClient.fetchMovies(search)
-            .sink { _ in } receiveValue: { movies = $0 }
-            .store(in: &cancellables)
     }
 }
 
